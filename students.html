@@ -1,0 +1,1168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - SCAD System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+            .sidebar h2 {
+                margin: 0 0 20px;
+                font-size: 24px;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+            }
+
+                .sidebar ul li {
+                    margin: 10px 0;
+                }
+
+                    .sidebar ul li a {
+                        color: white;
+                        text-decoration: none;
+                        display: block;
+                        padding: 10px;
+                        border-radius: 4px;
+                    }
+
+                        .sidebar ul li a:hover {
+                            background-color: #34495e;
+                        }
+
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+            width: calc(100% - 270px);
+        }
+
+        .section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+            .section.active {
+                display: block;
+            }
+
+        h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        .back-btn {
+            background-color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+            .back-btn:hover {
+                background-color: #5a6268;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+            .search-filter input, .search-filter select {
+                width: 200px;
+            }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+            .modal-content h3 {
+                margin-top: 0;
+            }
+
+        .notification-banner {
+            background-color: #ffeb3b;
+            color: #333;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Student Dashboard</h2>
+        <ul>
+            <li><a href="#" data-section="profile">Profile</a></li>
+            <li><a href="#" data-section="suggested-companies">Suggested Companies</a></li>
+            <li><a href="#" data-section="majors-semesters">Majors & Semesters</a></li>
+            <li><a href="#" data-section="internships">Internships</a></li>
+            <li><a href="#" data-section="my-applications">My Applications</a></li>
+            <li><a href="#" data-section="past-internships">Past & Present Internships</a></li>
+            <li><a href="#" data-section="evaluations">Evaluations</a></li>
+            <li><a href="#" data-section="reports">Internship Reports</a></li>
+            <li><a href="#" data-section="courses">Courses</a></li>
+            <li><a href="#" data-section="internship-cycle">Internship Cycle</a></li>
+            <li><a href="#" data-section="internship-video">Internship Video</a></li>
+            <li><a href="#" data-section="appointments">Appointments</a></li>
+            <li><a href="#" data-section="profile-views">Profile Views</a></li>
+            <li><a href="#" data-section="online-assessments">Online Assessments</a></li>
+            <li><a href="#" data-section="workshops">Online Workshops</a></li>
+            <li><a href="login.html" class="logout-btn" style="display: block; padding: 10px; color: white; text-decoration: none;">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <!-- Profile Section -->
+        <div class="section active" id="profile">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Profile</h3>
+            <div class="form-group">
+                <label for="jobInterests">Job Interests:</label>
+                <textarea id="jobInterests"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="previousInternships">Previous Internships:</label>
+                <textarea id="previousInternships"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="collegeActivities">College Activities:</label>
+                <textarea id="collegeActivities"></textarea>
+            </div>
+            <div class="error" id="profileError">Please fill all fields.</div>
+            <button onclick="saveProfile()">Save Profile</button>
+        </div>
+
+        <!-- Suggested Companies Section -->
+        <div class="section" id="suggested-companies">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Suggested Companies</h3>
+            <div class="search-filter">
+                <select id="industryFilter">
+                    <option value="">All Industries</option>
+                    <option value="Tech">Tech</option>
+                    <option value="Finance">Finance</option>
+                </select>
+            </div>
+            <table id="companiesTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Industry</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Majors & Semesters Section -->
+        <div class="section" id="majors-semesters">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Majors & Semesters</h3>
+            <div class="form-group">
+                <label for="majorSelect">Select Major:</label>
+                <select id="majorSelect">
+                    <option value="">Select Major</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Business">Business</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="semesterSelect">Select Semester:</label>
+                <select id="semesterSelect">
+                    <option value="">Select Semester</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+            </div>
+            <div class="error" id="majorError">Please select both major and semester.</div>
+            <button onclick="saveMajorSemester()">Save</button>
+        </div>
+
+        <!-- Internships Section -->
+        <div class="section" id="internships">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Internships</h3>
+            <div class="search-filter">
+                <input type="text" id="internshipSearch" placeholder="Search by job title or company...">
+                <select id="industryFilter">
+                    <option value="">All Industries</option>
+                    <option value="Tech">Tech</option>
+                    <option value="Finance">Finance</option>
+                </select>
+                <select id="durationFilter">
+                    <option value="">All Durations</option>
+                    <option value="3 months">3 months</option>
+                    <option value="6 months">6 months</option>
+                </select>
+                <select id="paidFilter">
+                    <option value="">Paid/Unpaid</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Unpaid">Unpaid</option>
+                </select>
+            </div>
+            <table id="internshipsTable">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Duration</th>
+                        <th>Paid/Unpaid</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- My Applications Section -->
+        <div class="section" id="my-applications">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>My Applications</h3>
+            <table id="applicationsTable">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Past & Present Internships Section -->
+        <div class="section" id="past-internships">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Past & Present Internships</h3>
+            <div class="search-filter">
+                <input type="text" id="pastInternshipSearch" placeholder="Search by job title or company...">
+                <select id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="Current">Current</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <table id="pastInternshipsTable">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Evaluations Section -->
+        <div class="section" id="evaluations">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Evaluations</h3>
+            <div class="form-group">
+                <label for="companySelect">Company:</label>
+                <select id="companySelect">
+                    <option value="Tech Corp">Tech Corp</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="evaluationText">Evaluation:</label>
+                <textarea id="evaluationText"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="recommendSelect">Recommend:</label>
+                <select id="recommendSelect">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="error" id="evaluationError">Please fill all fields.</div>
+            <button onclick="submitEvaluation()">Submit Evaluation</button>
+            <button onclick="deleteEvaluation()">Delete Evaluation</button>
+        </div>
+
+        <!-- Internship Reports Section -->
+        <div class="section" id="reports">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Internship Reports</h3>
+            <div class="form-group">
+                <label for="reportTitle">Title:</label>
+                <input type="text" id="reportTitle">
+            </div>
+            <div class="form-group">
+                <label for="reportIntro">Introduction:</label>
+                <textarea id="reportIntro"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="reportBody">Body:</label>
+                <textarea id="reportBody"></textarea>
+            </div>
+            <div class="error" id="reportError">Please fill all fields.</div>
+            <button onclick="saveReport()">Save Report</button>
+            <button onclick="submitFinalReport()">Submit Final Report</button>
+            <button onclick="deleteReport()">Delete Report</button>
+            <div class="notification-banner" id="reportBanner">
+                Status: <span id="reportStatus">Pending</span>
+            </div>
+            <button onclick="simulateReportStatusUpdate()">Simulate Report Status Update</button>
+            <p>Comments: <span id="reportComments">None</span></p>
+            <div class="form-group">
+                <label for="appealMessage">Appeal Message:</label>
+                <textarea id="appealMessage"></textarea>
+            </div>
+            <button onclick="submitAppeal()">Submit Appeal</button>
+            <button onclick="downloadReportPDF()">Download Report as PDF</button>
+            <div class="toast" id="reportToast"></div>
+        </div>
+
+        <!-- Courses Section -->
+        <div class="section" id="courses">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Courses</h3>
+            <table id="coursesTable">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Introduction to Programming</td>
+                        <td><button onclick="removeCourse('Introduction to Programming')">Remove</button></td>
+                    </tr>
+                    <tr>
+                        <td>Data Structures</td>
+                        <td><button onclick="removeCourse('Data Structures')">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button onclick="saveCourses()">Save Courses</button>
+        </div>
+
+        <!-- Internship Cycle Section -->
+        <div class="section" id="internship-cycle">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Internship Cycle</h3>
+            <p>New internship cycle starts on June 1, 2025!</p>
+            <p>Cycle Status: <span id="cycleStatus">Not Started</span></p>
+            <button onclick="simulateCycleUpdate()">Simulate Cycle Update</button>
+            <div class="toast" id="cycleToast"></div>
+        </div>
+
+        <!-- Internship Video Section -->
+        <div class="section" id="internship-video">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Internship Video</h3>
+            <video width="640" height="360" controls>
+                <source src="internship-video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <!-- Appointments Section -->
+        <div class="section" id="appointments">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Appointments</h3>
+            <button onclick="showModal('requestAppointmentModal')">Request Appointment</button>
+            <table id="appointmentsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025-05-20</td>
+                        <td>10:00 AM</td>
+                        <td>Pending</td>
+                        <td>
+                            <button onclick="acceptAppointment(1)">Accept</button>
+                            <button onclick="rejectAppointment(1)">Reject</button>
+                            <button onclick="startCall(1)">Start Call</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="callStatus">No active call.</p>
+            <button onclick="toggleVideo()">Toggle Video</button>
+            <button onclick="toggleMic()">Toggle Mic</button>
+            <button onclick="shareScreen()">Share Screen</button>
+            <button onclick="leaveCall()">Leave Call</button>
+        </div>
+
+        <!-- Profile Views Section -->
+        <div class="section" id="profile-views">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Profile Views</h3>
+            <table id="profileViewsTable">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tech Corp</td>
+                        <td>2025-05-10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Online Assessments Section -->
+        <div class="section" id="online-assessments">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Online Assessments</h3>
+            <table id="assessmentsTable">
+                <thead>
+                    <tr>
+                        <th>Assessment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Coding Test</td>
+                        <td><button onclick="takeAssessment('Coding Test')">Take</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Score: <span id="assessmentScore">Not taken</span></p>
+            <button onclick="postScore()">Post Score to Profile</button>
+        </div>
+
+        <!-- Online Workshops Section -->
+        <div class="section" id="workshops">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h3>Online Workshops</h3>
+            <table id="workshopsTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Career Planning</td>
+                        <td>2025-05-25</td>
+                        <td>
+                            <button onclick="registerWorkshop('Career Planning')">Register</button>
+                            <button onclick="viewWorkshopDetails('Career Planning')">View Details</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="form-group">
+                <video width="640" height="360" controls id="workshopVideo">
+                    <source src="workshop-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <button onclick="saveWorkshopNotes()">Save Notes</button>
+                <button onclick="pauseWorkshop()">Pause</button>
+                <button onclick="stopWorkshop()">Stop</button>
+            </div>
+            <div class="form-group">
+                <label for="workshopChat">Chat:</label>
+                <textarea id="workshopChat"></textarea>
+                <button onclick="sendChat()">Send</button>
+            </div>
+            <p id="workshopStatus">You are registered for Career Planning on 2025-05-25.</p>
+            <button onclick="showModal('rateWorkshopModal')">Rate Workshop</button>
+            <p>Certificate: <span id="certificateStatus">Not earned</span></p>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="applyInternshipModal">
+        <div class="modal-content">
+            <h3>Apply for Internship</h3>
+            <div class="form-group">
+                <label for="coverLetter">Cover Letter:</label>
+                <textarea id="coverLetter"></textarea>
+            </div>
+            <div class報告 class="form-group">
+                <label for="documents">Upload Documents:</label>
+                <input type="file" id="documents" multiple>
+            </div>
+            <div class="error" id="applyError">Please provide a cover letter and upload at least one document.</div>
+            <button onclick="applyInternship()">Apply</button>
+            <button onclick="closeModal('applyInternshipModal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="internshipDetailsModal">
+        <div class="modal-content">
+            <h3>Internship Details</h3>
+            <p id="internshipModalDetails"></p>
+            <button onclick="showModal('applyInternshipModal')">Apply</button>
+            <button onclick="closeModal('internshipDetailsModal')">Close</button>
+        </div>
+    </div>
+
+    <div class="modal" id="requestAppointmentModal">
+        <div class="modal-content">
+            <h3>Request Appointment</h3>
+            <div class="form-group">
+                <label for="appointmentDate">Date:</label>
+                <input type="date" id="appointmentDate">
+            </div>
+            <div class="form-group">
+                <label for="appointmentTime">Time:</label>
+                <input type="time" id="appointmentTime">
+            </div>
+            <div class="error" id="appointmentError">Please select date and time.</div>
+            <button onclick="requestAppointment()">Request</button>
+            <button onclick="closeModal('requestAppointmentModal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="workshopDetailsModal">
+        <div class="modal-content">
+            <h3>Workshop Details</h3>
+            <p id="workshopModalDetails"></p>
+            <button onclick="closeModal('workshopDetailsModal')">Close</button>
+        </div>
+    </div>
+
+    <div class="modal" id="rateWorkshopModal">
+        <div class="modal-content">
+            <h3>Rate Workshop</h3>
+            <div class="form-group">
+                <label for="workshopRating">Rating (1-5):</label>
+                <input type="number" id="workshopRating" min="1" max="5">
+            </div>
+            <div class="form-group">
+                <label for="workshopFeedback">Feedback:</label>
+                <textarea id="workshopFeedback"></textarea>
+            </div>
+            <div class="error" id="workshopRateError">Please provide a rating and feedback.</div>
+            <button onclick="rateWorkshop()">Submit</button>
+            <button onclick="closeModal('rateWorkshopModal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Dummy Data
+        const internships = [
+            {
+                id: 1,
+                jobTitle: 'Software Intern',
+                company: 'Tech Corp',
+                duration: '3 months',
+                paid: 'Paid',
+                salary: '$1000/month',
+                skills: 'JavaScript, Python',
+                description: 'Develop web applications.'
+            },
+            {
+                id: 2,
+                jobTitle: 'Data Analyst Intern',
+                company: 'Data Inc',
+                duration: '6 months',
+                paid: 'Unpaid',
+                salary: '',
+                skills: 'SQL, Excel',
+                description: 'Analyze business data.'
+            }
+        ];
+
+        const applications = [
+            {
+                id: 1,
+                jobTitle: 'Software Intern',
+                company: 'Tech Corp',
+                status: 'Pending'
+            }
+        ];
+
+        const pastInternships = [
+            {
+                id: 1,
+                jobTitle: 'Software Intern',
+                company: 'Tech Corp',
+                status: 'Current',
+                date: '2025-05-01'
+            }
+        ];
+
+        const companies = [
+            {
+                id: 1,
+                name: 'Tech Corp',
+                industry: 'Tech',
+                recommendation: 'High'
+            }
+        ];
+
+        let cycleStatus = 'Not Started';
+        let reportStatus = 'Pending';
+        let currentInternship = null;
+
+        // Navigation
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', e => {
+                if (e.target.classList.contains('logout-btn')) return;
+                e.preventDefault();
+                const section = e.target.dataset.section;
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+            });
+        });
+
+        function goBack() {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('profile').classList.add('active');
+        }
+
+        // Toast Notification
+        function showToast(message, toastId = 'toast') {
+            const toast = document.getElementById(toastId);
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        // Modal Handling
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.querySelectorAll('.error').forEach(e => e.style.display = 'none');
+        }
+
+        // Internship Cycle (Req 50)
+        document.getElementById('cycleStatus').textContent = cycleStatus;
+        function simulateCycleUpdate() {
+            const statuses = ['Not Started', 'Started', 'Ended'];
+            const currentIndex = statuses.indexOf(cycleStatus);
+            cycleStatus = statuses[(currentIndex + 1) % statuses.length];
+            document.getElementById('cycleStatus').textContent = cycleStatus;
+            showToast(`Email sent to student@gmail.com: Internship cycle ${cycleStatus.toLowerCase()}!`, 'cycleToast');
+        }
+
+        // Internship Reports (Req 59)
+        document.getElementById('reportStatus').textContent = reportStatus;
+        document.getElementById('reportBanner').style.display = 'block';
+        function simulateReportStatusUpdate() {
+            const statuses = ['Pending', 'Approved', 'Rejected'];
+            const currentIndex = statuses.indexOf(reportStatus);
+            reportStatus = statuses[(currentIndex + 1) % statuses.length];
+            document.getElementById('reportStatus').textContent = reportStatus;
+            document.getElementById('reportBanner').style.display = 'block';
+            showToast(`Email sent to student@gmail.com: Report ${reportStatus.toLowerCase()}!`, 'reportToast');
+        }
+
+        // Profile
+        function saveProfile() {
+            const jobInterests = document.getElementById('jobInterests').value;
+            const previousInternships = document.getElementById('previousInternships').value;
+            const collegeActivities = document.getElementById('collegeActivities').value;
+            const error = document.getElementById('profileError');
+            if (!jobInterests || !previousInternships || !collegeActivities) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            showToast('Profile saved!');
+        }
+
+        // Suggested Companies
+        function renderCompanies() {
+            const tbody = document.querySelector('#companiesTable tbody');
+            tbody.innerHTML = '';
+            const industry = document.getElementById('industryFilter').value;
+            companies
+                .filter(c => !industry || c.industry === industry)
+                .forEach(c => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                            <td>${c.name}</td>
+                            <td>${c.industry}</td>
+                            <td>${c.recommendation}</td>
+                        `;
+                    tbody.appendChild(row);
+                });
+        }
+
+        document.getElementById('industryFilter').addEventListener('change', renderCompanies);
+        renderCompanies();
+
+        // Majors & Semesters
+        function saveMajorSemester() {
+            const major = document.getElementById('majorSelect').value;
+            const semester = document.getElementById('semesterSelect').value;
+            const error = document.getElementById('majorError');
+            if (!major || !semester) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            showToast('Major and semester saved!');
+        }
+
+        // Internships
+        function renderInternships() {
+            const tbody = document.querySelector('#internshipsTable tbody');
+            tbody.innerHTML = '';
+            const search = document.getElementById('internshipSearch').value.toLowerCase();
+            const industry = document.getElementById('industryFilter').value;
+            const duration = document.getElementById('durationFilter').value;
+            const paid = document.getElementById('paidFilter').value;
+
+            internships
+                .filter(i =>
+                    (i.jobTitle.toLowerCase().includes(search) || i.company.toLowerCase().includes(search)) &&
+                    (!industry || i.skills.includes(industry)) &&
+                    (!duration || i.duration === duration) &&
+                    (!paid || i.paid === paid)
+                )
+                .forEach(i => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                            <td>${i.jobTitle}</td>
+                            <td>${i.company}</td>
+                            <td>${i.duration}</td>
+                            <td>${i.paid}</td>
+                            <td><button onclick="viewInternship(${i.id})">View</button></td>
+                        `;
+                    tbody.appendChild(row);
+                });
+        }
+
+        function viewInternship(id) {
+            currentInternship = id;
+            const internship = internships.find(i => i.id === id);
+            document.getElementById('internshipModalDetails').innerHTML = `
+                    <strong>Job Title:</strong> ${internship.jobTitle}<br>
+                    <strong>Company:</strong> ${internship.company}<br>
+                    <strong>Duration:</strong> ${internship.duration}<br>
+                    <strong>Paid/Unpaid:</strong> ${internship.paid}<br>
+                    <strong>Expected Salary:</strong> ${internship.salary || 'N/A'}<br>
+                    <strong>Skills Required:</strong> ${internship.skills}<br>
+                    <strong>Job Description:</strong> ${internship.description}
+                `;
+            showModal('internshipDetailsModal');
+        }
+
+        function applyInternship() {
+            const coverLetter = document.getElementById('coverLetter').value;
+            const documents = document.getElementById('documents').files.length;
+            const error = document.getElementById('applyError');
+            if (!coverLetter || documents === 0) {
+                error.style.display = 'block';
+                return;
+            }
+            const internship = internships.find(i => i.id === currentInternship);
+            applications.push({
+                id: applications.length + 1,
+                jobTitle: internship.jobTitle,
+                company: internship.company,
+                status: 'Pending'
+            });
+            renderApplications();
+            closeModal('applyInternshipModal');
+            showToast('Application submitted!');
+        }
+
+        document.getElementById('internshipSearch').addEventListener('input', renderInternships);
+        document.getElementById('industryFilter').addEventListener('change', renderInternships);
+        document.getElementById('durationFilter').addEventListener('change', renderInternships);
+        document.getElementById('paidFilter').addEventListener('change', renderInternships);
+        renderInternships();
+
+        // My Applications
+        function renderApplications() {
+            const tbody = document.querySelector('#applicationsTable tbody');
+            tbody.innerHTML = '';
+            applications.forEach(a => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                        <td>${a.jobTitle}</td>
+                        <td>${a.company}</td>
+                        <td>${a.status}</td>
+                    `;
+                tbody.appendChild(row);
+            });
+        }
+
+        renderApplications();
+
+        // Past & Present Internships
+        function renderPastInternships() {
+            const tbody = document.querySelector('#pastInternshipsTable tbody');
+            tbody.innerHTML = '';
+            const search = document.getElementById('pastInternshipSearch').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            pastInternships
+                .filter(i =>
+                    (i.jobTitle.toLowerCase().includes(search) || i.company.toLowerCase().includes(search)) &&
+                    (!status || i.status === status)
+                )
+                .forEach(i => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                            <td>${i.jobTitle}</td>
+                            <td>${i.company}</td>
+                            <td>${i.status}</td>
+                            <td>${i.date}</td>
+                            <td><button onclick="viewPastInternship(${i.id})">View</button></td>
+                        `;
+                    tbody.appendChild(row);
+                });
+        }
+
+        function viewPastInternship(id) {
+            const internship = pastInternships.find(i => i.id === id);
+            document.getElementById('internshipModalDetails').innerHTML = `
+                    <strong>Job Title:</strong> ${internship.jobTitle}<br>
+                    <strong>Company:</strong> ${internship.company}<br>
+                    <strong>Status:</strong> ${internship.status}<br>
+                    <strong>Date:</strong> ${internship.date}
+                `;
+            showModal('internshipDetailsModal');
+        }
+
+        document.getElementById('pastInternshipSearch').addEventListener('input', renderPastInternships);
+        document.getElementById('statusFilter').addEventListener('change', renderPastInternships);
+        renderPastInternships();
+
+        // Evaluations
+        function submitEvaluation() {
+            const company = document.getElementById('companySelect').value;
+            const evaluation = document.getElementById('evaluationText').value;
+            const recommend = document.getElementById('recommendSelect').value;
+            const error = document.getElementById('evaluationError');
+            if (!company || !evaluation || !recommend) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            showToast('Evaluation submitted!');
+        }
+
+        function deleteEvaluation() {
+            const company = document.getElementById('companySelect').value;
+            const error = document.getElementById('evaluationError');
+            if (!company) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            showToast('Evaluation deleted!');
+        }
+
+        // Reports
+        function saveReport() {
+            const title = document.getElementById('reportTitle').value;
+            const intro = document.getElementById('reportIntro').value;
+            const body = document.getElementById('reportBody').value;
+            const error = document.getElementById('reportError');
+            if (!title || !intro || !body) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            showToast('Report saved!');
+        }
+
+        function submitFinalReport() {
+            const title = document.getElementById('reportTitle').value;
+            const intro = document.getElementById('reportIntro').value;
+            const body = document.getElementById('reportBody').value;
+            const error = document.getElementById('reportError');
+            if (!title || !intro || !body) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            showToast('Final report submitted!');
+        }
+
+        function deleteReport() {
+            const error = document.getElementById('reportError');
+            error.style.display = 'none';
+            showToast('Report deleted!');
+        }
+
+        function submitAppeal() {
+            const message = document.getElementById('appealMessage').value;
+            if (!message) {
+                showToast('Please provide an appeal message.');
+                return;
+            }
+            showToast('Appeal submitted!');
+        }
+
+        function downloadReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const title = document.getElementById('reportTitle').value || 'Untitled Report';
+            const intro = document.getElementById('reportIntro').value || 'No introduction provided.';
+            const body = document.getElementById('reportBody').value || 'No body provided.';
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 10;
+            const maxWidth = pageWidth - 2 * margin;
+            let y = margin;
+
+            doc.setFontSize(16);
+            doc.text('Internship Report', margin, y);
+            y += 10;
+
+            doc.setFontSize(12);
+            doc.text(`Title: ${title}`, margin, y);
+            y += 10;
+
+            doc.text('Introduction:', margin, y);
+            y += 7;
+            const introLines = doc.splitTextToSize(intro, maxWidth);
+            doc.text(introLines, margin, y);
+            y += introLines.length * 7 + 5;
+
+            doc.text('Body:', margin, y);
+            y += 7;
+            const bodyLines = doc.splitTextToSize(body, maxWidth);
+            doc.text(bodyLines, margin, y);
+            y += bodyLines.length * 7;
+
+            doc.save('Internship_Report.pdf');
+            showToast('Report downloaded as PDF!');
+        }
+
+        // Courses
+        function removeCourse(courseName) {
+            showToast(`${courseName} removed!`);
+        }
+
+        function saveCourses() {
+            showToast('Courses saved!');
+        }
+
+        // Appointments
+        function requestAppointment() {
+            const date = document.getElementById('appointmentDate').value;
+            const time = document.getElementById('appointmentTime').value;
+            const error = document.getElementById('appointmentError');
+            if (!date || !time) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            showToast('Appointment requested!');
+            closeModal('requestAppointmentModal');
+        }
+
+        function acceptAppointment(id) {
+            showToast('Appointment accepted!');
+        }
+
+        function rejectAppointment(id) {
+            showToast('Appointment rejected!');
+        }
+
+        function startCall(id) {
+            document.getElementById('callStatus').textContent = 'Call started!';
+            showToast('Call started!');
+        }
+
+        function toggleVideo() {
+            showToast('Video toggled!');
+        }
+
+        function toggleMic() {
+            showToast('Mic toggled!');
+        }
+
+        function shareScreen() {
+            showToast('Screen shared!');
+        }
+
+        function leaveCall() {
+            document.getElementById('callStatus').textContent = 'No active call.';
+            showToast('Call ended!');
+        }
+
+        // Assessments
+        function takeAssessment(name) {
+            document.getElementById('assessmentScore').textContent = '80%';
+            showToast(`${name} taken!`);
+        }
+
+        function postScore() {
+            showToast('Score posted to profile!');
+        }
+
+        // Workshops
+        function registerWorkshop(name) {
+            document.getElementById('workshopStatus').textContent = `You are registered for ${name} on 2025-05-25.`;
+            showToast(`Registered for ${name}!`);
+        }
+
+        function viewWorkshopDetails(name) {
+            document.getElementById('workshopModalDetails').innerHTML = `
+                    <strong>Name:</strong> ${name}<br>
+                    <strong>Date:</strong> 2025-05-25<br>
+                    <strong>Description:</strong> Learn career planning strategies.
+                `;
+            showModal('workshopDetailsModal');
+        }
+
+        function saveWorkshopNotes() {
+            showToast('Notes saved!');
+        }
+
+        function pauseWorkshop() {
+            showToast('Workshop paused!');
+        }
+
+        function stopWorkshop() {
+            showToast('Workshop stopped!');
+        }
+
+        function sendChat() {
+            const chat = document.getElementById('workshopChat').value;
+            if (!chat) {
+                showToast('Please enter a chat message.');
+                return;
+            }
+            showToast('Chat sent!');
+        }
+
+        function rateWorkshop() {
+            const rating = document.getElementById('workshopRating').value;
+            const feedback = document.getElementById('workshopFeedback').value;
+            const error = document.getElementById('workshopRateError');
+            if (!rating || !feedback) {
+                error.style.display = 'block';
+                return;
+            }
+            error.style.display = 'none';
+            document.getElementById('certificateStatus').textContent = 'Earned';
+            showToast('Workshop rated!');
+            closeModal('rateWorkshopModal');
+        }
+    </script>
+</body>
+</html>
